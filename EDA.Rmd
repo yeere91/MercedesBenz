@@ -8,7 +8,54 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
+library('forcats') # factor manipulation
 ```
 
 ## Load Data
+```{r}
+train = read.csv("data/train.csv")
+test = read.csv("data/test.csv")
 
+full_data = full_join(train, test) %>% select(-y,-ID)
+
+## Convert variable 13 to 378 to factor since they are only 0 or 1 (binary)
+summary(train)
+summary(test)
+
+
+## Convert all the variables containing "X" to become a factor.
+train[,grepl("X", names(train))] = lapply(train[,grepl("X", names(train))], factor)
+test[,grepl("X", names(test))] = lapply(test[,grepl("X", names(test))], factor)
+
+## Isolate the IDs and responses
+train_id = data.frame(ID=as.character(train$ID))
+train_response = data.frame(y=train$y)
+test_id = data.frame(ID=as.character(test$ID))
+
+## Remove the IDs and responses from the dataset.
+train$ID = NULL
+train$y = NULL
+test$ID = NULL
+
+summary(full_data)
+
+lsize <- length(train)-2
+levels <- tibble(
+  nr = seq(1,lsize),
+  name = "test",
+  counts = rep(0,lsize)
+)
+
+for (i in seq(3,length(train))){
+  levels$name[i-2] <- colnames(train)[i]
+  levels$counts[i-2] <- fct_unique(train[[i]]) %>% length()
+}
+
+levels %>%
+  filter(counts < 2)
+
+levels(train$X11)
+```
+
+``{r}
+```
