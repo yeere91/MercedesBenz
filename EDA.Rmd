@@ -39,6 +39,10 @@ test$ID = NULL
 
 summary(full_data)
 
+## Convert the full data set's variables to factors.
+full_data[,grepl("X", names(full_data))] = lapply(test[,grepl("X", names(full_data))], factor)
+
+
 lsize <- length(train)-2
 levels <- tibble(
   nr = seq(1,lsize),
